@@ -48,7 +48,16 @@ def f_propagate(X, params):
 def compute_cost(A2, Y):
     logprobs = np.multiply(np.log(A2), Y) + np.multiply((1 - Y), np.log(1 - A2))
     cost = - np.sum(logprobs) / len(logprobs)
-    return cost
+    return np.mean(cost)
+
+#Adaptive learning rate
+def adaptive_learning_rate(adaptive, l_rate, cost, prev_cost):
+    print(prev_cost)
+    if(prev_cost == None): return adaptive['InitialRate']
+    else:
+        if(cost > adaptive['ErrorRate']*prev_cost): return l_rate*adaptive['DecrementVar']
+        elif(cost < prev_cost): return l_rate*adaptive['IncrementVar']
+        else: return l_rate
 
 #Back propagate
 def b_propagate(params, cache, X, Y):
@@ -78,12 +87,20 @@ def update_params(params, grads, l_rate):
 def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
     
     np.random.seed(6)
-    
     #Get sizes of input and output layers
     n_x, n_y = layer_sizes(X, Y)
     
-    #Initialize weights for first forward propagation
+    #Initialize weights
     params = init_params(n_x, n_h, n_y)
+
+    #Initialize adaptive learning params
+    if(type(l_rate) == dict):
+        adaptive_rate = True           
+        l_rate_params = l_rate
+        l_rate = l_rate_params['InitialRate']
+        prev_cost = None
+    else: adaptive_rate = False
+
     for i in range(0, n_epochs):
 
         #Forward propagate
@@ -95,11 +112,17 @@ def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
         #Backpropagation
         grads = b_propagate(params, cache, X, Y)
 
+        #Update learning rate 
+        if(adaptive_rate == True):             
+            l_rate = adaptive_learning_rate(l_rate_params, l_rate, cost, prev_cost)
+            prev_cost = cost      
+
         #Update weights and biases
         params = update_params(params, grads, l_rate)
 
         #Print cost each 10 epochs
-        if((showCost == True) & (i % 100 == 0)):
+        if((showCost == True) & (i % 10 == 0)):
             avgCost = cost.mean()
-            print('Cost after iteration %i: %f' %(i, avgCost))
+            print('Cost after iteration %i: %f' %(i, avgCost))    
+    
     return params

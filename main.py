@@ -27,15 +27,21 @@ Y = pd.get_dummies(Y)
 #Train neural network
 test_ratio = 0.2 
 n_hiddenLayers = 15
-n_epochs = 500
-showCost = True
-learning_rate = 0.01
+n_epochs = 2000
+showCost = False
+const_lRate = 0.01
+adaptive_lRate = {
+    'InitialRate' : 0.01,
+    'DecrementVar': 0.7,
+    'IncrementVar' : 1.05,
+    'ErrorRate' : 1.04 
+}
 
 #Split data into train and test sections
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_ratio)
 
 #Train the network on train data
-params = nn.train_nn(X_train, Y_train, n_hiddenLayers, n_epochs, learning_rate, showCost=showCost)
+params = nn.train_nn(X_train, Y_train, n_hiddenLayers, n_epochs, adaptive_lRate, showCost=showCost)
 
 #Test neural network on test data
 A2, cache = nn.f_propagate(X_test, params)
