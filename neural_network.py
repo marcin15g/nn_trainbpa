@@ -52,7 +52,6 @@ def compute_cost(A2, Y):
 
 #Adaptive learning rate
 def adaptive_learning_rate(adaptive, l_rate, cost, prev_cost):
-    print(prev_cost)
     if(prev_cost == None): return adaptive['InitialRate']
     else:
         if(cost > adaptive['ErrorRate']*prev_cost): return l_rate*adaptive['DecrementVar']

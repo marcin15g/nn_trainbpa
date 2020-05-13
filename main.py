@@ -28,7 +28,7 @@ Y = pd.get_dummies(Y)
 test_ratio = 0.2 
 n_hiddenLayers = 15
 n_epochs = 2000
-showCost = False
+showCost = True
 const_lRate = 0.01
 adaptive_lRate = {
     'InitialRate' : 0.01,
@@ -53,7 +53,7 @@ A2, cache = nn.f_propagate(X_train, params)
 acc = "{:.4f}".format(nn.accuracy(A2, Y_train))
 print('Accuracy on train data: ' + acc + '%')
 
-#Test neural network on all data
+# #Test neural network on all data
 A2, cache = nn.f_propagate(X, params)
 acc = "{:.4f}".format(nn.accuracy(A2, Y))
 print('Accuracy on all available data: ' + acc + '%')
