@@ -1,4 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from random import randint
+
 
 #Define sigmoid and sigmoid derivative functions
 def sigmoid(x, deriv=False):
@@ -13,7 +16,7 @@ def layer_sizes(X,Y):
     n_y = Y.shape[1]
     return (n_x, n_y)
 
-#Initialize weights and biases for hidden layer and output layer
+#Initialize weights for hidden layer and output layer
 def init_params(n_x, n_h, n_y):
     return {
     "W1" : np.random.randn(n_x, n_h) * 0.01,
@@ -29,6 +32,7 @@ def accuracy(prediction, test):
 
 #Forward propagate
 def f_propagate(X, params):   
+
     #First layer
     Z1 = np.dot(X, params['W1'])
     A1 = sigmoid(Z1)
@@ -54,7 +58,7 @@ def compute_cost(A2, Y):
 def adaptive_learning_rate(adaptive, l_rate, cost, prev_cost):
     if(prev_cost == None): return adaptive['InitialRate']
     else:
-        if(cost > adaptive['ErrorRate']*prev_cost): return l_rate*adaptive['DecrementVar']
+        if(cost > adaptive['ErrorRatio']*prev_cost): return l_rate*adaptive['DecrementVar']
         elif(cost < prev_cost): return l_rate*adaptive['IncrementVar']
         else: return l_rate
 
@@ -71,7 +75,8 @@ def b_propagate(params, cache, X, Y):
     return {
         'dW2' : dW2,
         'dW1' : dW1
-        }
+    }
+
 
 #Update weights and biases on neurons
 def update_params(params, grads, l_rate):    
@@ -85,10 +90,9 @@ def update_params(params, grads, l_rate):
 
 def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
     
-    np.random.seed(6)
+    np.random.seed(randint(1,100))
     #Get sizes of input and output layers
     n_x, n_y = layer_sizes(X, Y)
-    
     #Initialize weights
     params = init_params(n_x, n_h, n_y)
 
@@ -99,6 +103,9 @@ def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
         l_rate = l_rate_params['InitialRate']
         prev_cost = None
     else: adaptive_rate = False
+
+    plotX = []
+    plotY = []
 
     for i in range(0, n_epochs):
 
@@ -123,5 +130,5 @@ def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
         if((showCost == True) & (i % 10 == 0)):
             avgCost = cost.mean()
             print('Cost after iteration %i: %f' %(i, avgCost))    
-    
+
     return params
