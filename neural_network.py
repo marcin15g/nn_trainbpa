@@ -86,7 +86,7 @@ def b_propagate(params, cache, X, Y):
     }
 
 
-#Update weights and biases on neurons
+#Update weights
 def update_params(params, grads, l_rate):    
     W1 = params['W1'] - l_rate * grads['dW1']
     b1 = params['b1'] - l_rate * grads['db1'].sum(axis=0)
@@ -132,7 +132,8 @@ def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
         if(adaptive_rate == True):             
             l_rate = adaptive_learning_rate(l_rate_params, l_rate, cost, prev_cost)
             prev_cost = cost      
-        #Update weights and biases
+
+        #Update weights
         params = update_params(params, grads, l_rate)
 
         
