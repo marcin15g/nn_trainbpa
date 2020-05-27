@@ -13,6 +13,7 @@ def dSigmoid(x):
 #Sizes of input and output
 def layer_sizes(X,Y):
     n_x = X.shape[1]
+    
     n_y = Y.shape[1]
     return (n_x, n_y)
 
@@ -20,7 +21,9 @@ def layer_sizes(X,Y):
 def init_params(n_x, n_h, n_y):
     return {
     "W1" : np.random.randn(n_x, n_h) * 0.01,
+    "b1" : np.zeros(n_h),
     "W2" : np.random.randn(n_h, n_y) * 0.01,
+    "b2" : np.zeros(n_y)
     }
 
 #Calculate accuracy of the neural network
@@ -34,10 +37,11 @@ def accuracy(prediction, test):
 def f_propagate(X, params):   
 
     #First layer
-    Z1 = np.dot(X, params['W1'])
+    Z1 = np.dot(X, params['W1']) + params['b1']
     A1 = sigmoid(Z1)
+
     #Second layer
-    Z2 = np.dot(A1, params['W2'])
+    Z2 = np.dot(A1, params['W2']) + params['b2']
     A2 = sigmoid(Z2)
 
     cache = {
@@ -66,25 +70,35 @@ def adaptive_learning_rate(adaptive, l_rate, cost, prev_cost):
 def b_propagate(params, cache, X, Y):
     
     #Second layer
-    dZ2 = cache['A2'] - Y
+    dZ2 = cache['A2'] - Y.to_numpy()
     dW2 = np.dot(cache['A1'].T, dZ2)
+    db2 = dZ2
     #First layer
     dZ1 = np.dot(dZ2, params['W2'].T) * dSigmoid(cache['Z1'])
     dW1 = np.dot(X.T, dZ1)
+    db1 = dZ1
 
     return {
         'dW2' : dW2,
-        'dW1' : dW1
+        'db2' : db2,
+        'dW1' : dW1,
+        'db1' : db1
     }
 
 
 #Update weights and biases on neurons
 def update_params(params, grads, l_rate):    
     W1 = params['W1'] - l_rate * grads['dW1']
+    b1 = params['b1'] - l_rate * grads['db1'].sum(axis=0)
+# .sum(axis=0)
     W2 = params['W2'] - l_rate * grads['dW2']
+    b2 = params['b2'] - l_rate * grads['db2'].sum(axis=0)
+
     return {
         'W1' : W1,
-        'W2' : W2
+        'b1' : b1,
+        'W2' : W2,
+        'b2' : b2
     }
 
 
@@ -104,11 +118,7 @@ def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
         prev_cost = None
     else: adaptive_rate = False
 
-    plotX = []
-    plotY = []
-
     for i in range(0, n_epochs):
-
         #Forward propagate
         A2, cache = f_propagate(X, params)
 
@@ -122,10 +132,10 @@ def train_nn(X, Y, n_h, n_epochs, l_rate, showCost = False):
         if(adaptive_rate == True):             
             l_rate = adaptive_learning_rate(l_rate_params, l_rate, cost, prev_cost)
             prev_cost = cost      
-
         #Update weights and biases
         params = update_params(params, grads, l_rate)
 
+        
         #Print cost each 10 epochs
         if((showCost == True) & (i % 10 == 0)):
             avgCost = cost.mean()
